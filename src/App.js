@@ -1,7 +1,21 @@
-import './App.css';
+import { Component } from 'react';
 
-function App() {
-  return <div className="App">app</div>;
+import './App.css';
+import Searchbar from './Component/Searchbar';
+
+class App extends Component {
+  state = {};
+
+  render() {
+    return (
+      <div className="App">
+        <Searchbar />
+      </div>
+    );
+  }
 }
 
 export default App;
+//<div className="App">
+//
+//       </div>
