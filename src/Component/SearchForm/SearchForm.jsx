@@ -1,5 +1,6 @@
 import { Component } from 'react';
 import PropTypes from 'prop-types';
+import { toast } from 'react-toastify';
 
 import './SearchForm.scss';
 
@@ -25,12 +26,10 @@ class SearchForm extends Component {
     e.preventDefault();
     const { onFormSubmit } = this.props;
     const { searchImage } = this.state;
-
-    // const formIsValid = this.validatorInput();
-    // if (!formIsValid) {
-    //     return;
-    // }
-
+    if (searchImage.trim() === '') {
+      toast.warn('Please enter request', { autoClose: 2000 });
+      return;
+    }
     onFormSubmit(searchImage);
     this.resetForm();
   };
