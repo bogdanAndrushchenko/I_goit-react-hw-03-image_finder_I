@@ -1,21 +1,24 @@
 import { Component } from 'react';
-
-import './App.css';
 import Searchbar from './Component/Searchbar';
 
+import './App.css';
+
 class App extends Component {
-  state = {};
+  state = {
+    searchImage: '',
+  };
+
+  handleFormSearch = searchImage => {
+    this.setState({ searchImage });
+  };
 
   render() {
     return (
       <div className="App">
-        <Searchbar />
+        <Searchbar onFormSubmit={this.handleFormSearch} />
       </div>
     );
   }
 }
 
 export default App;
-//<div className="App">
-//
-//       </div>
