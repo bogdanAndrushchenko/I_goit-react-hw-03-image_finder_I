@@ -1,26 +1,72 @@
 import { Component } from 'react';
+import { toast } from 'react-toastify';
+import { Loader, Magnifier } from '../Loaders';
+// import  from "../Loaders";
+import ImageGalleryItem from '../ImageGalleryItem';
+
+import ari_service from '../../API_service/api_service';
 
 import './ImageGallery.scss';
+import Button from '../Button';
 
 class ImageGallery extends Component {
   state = {
-    searchImage: '',
+    images: null,
+    error: null,
+    status: 'idle',
   };
 
   componentDidUpdate(prevProps, prevState) {
     const { searchImage } = this.props;
     if (prevProps.searchImage !== searchImage) {
-      fetch(
-        `https://pixabay.com/api/?image_type=photo&orientation=horizontal&q=${searchImage}&page=12&key=18613871-d09d7f4d1ad86f8a51a1289a6`,
-      )
-        .then(res => res.json())
-        .then(console.log);
+      this.setState({ status: 'pending' });
+      ari_service
+        .getResource(searchImage)
+        .then(images => {
+          const { hits } = images;
+          if (hits.length === 0) {
+            toast.error('error', { autoClose: 2000 });
+            this.setState({ status: 'rejected' });
+            return;
+          }
+          this.setState({
+            images: hits,
+            status: 'resolved',
+          });
+          console.log(images);
+        })
+        .catch(error => this.setState({ error, status: 'rejected' }));
     }
   }
 
   render() {
-    const { searchImage } = this.props;
-    return <ul className="ImageGallery">{searchImage}</ul>;
+    const { images, error, status } = this.state;
+    console.log(status, error);
+
+    if (status === 'idle')
+      return <Magnifier title={'Введите имя для поиска'} />;
+    if (status === 'pending') return <Loader />;
+    if (status === 'rejected') {
+      return (
+        <>
+          {error ? (
+            error.message
+          ) : (
+            <Magnifier title={'Ненайдено! Попробуйте еще'} />
+          )}
+        </>
+      );
+    }
+    if (status === 'resolved') {
+      return (
+        <>
+          <ul className="ImageGallery">
+            <ImageGalleryItem images={images} />
+          </ul>
+          <Button />
+        </>
+      );
+    }
   }
 }
 
