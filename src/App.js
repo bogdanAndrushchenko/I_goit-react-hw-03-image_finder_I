@@ -20,7 +20,7 @@ class App extends Component {
     return (
       <div className="App">
         <Searchbar onFormSubmit={this.handleFormSearch} />
-        <ImageGallery searchImage={searchImage} />
+        <ImageGallery query={searchImage} />
 
         <ToastContainer />
       </div>

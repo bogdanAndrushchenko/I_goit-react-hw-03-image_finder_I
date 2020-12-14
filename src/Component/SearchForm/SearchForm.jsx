@@ -27,7 +27,7 @@ class SearchForm extends Component {
     const { onFormSubmit } = this.props;
     const { searchImage } = this.state;
     if (searchImage.trim() === '') {
-      toast.warn('Please enter request', { autoClose: 2000 });
+      toast.dark('Please enter request', { autoClose: 2000 });
       return;
     }
     onFormSubmit(searchImage);
