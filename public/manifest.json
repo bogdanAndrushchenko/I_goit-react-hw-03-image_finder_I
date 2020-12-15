@@ -1,6 +1,6 @@
 {
-  "short_name": "image_finder",
-  "name": "Create React App Image_Finder",
+  "short_name": "image finder",
+  "name": "Create React App Image Finder",
   "icons": [
     {
       "src": "favicon.ico",

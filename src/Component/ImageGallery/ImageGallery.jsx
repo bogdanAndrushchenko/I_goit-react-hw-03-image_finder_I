@@ -1,4 +1,5 @@
 import { Component } from 'react';
+import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import { Loader, Magnifier } from '../Loaders';
 import Button from '../Button';
@@ -9,13 +10,36 @@ import ari_service from '../../API_service/api_service';
 import './ImageGallery.scss';
 
 class ImageGallery extends Component {
+  static propTypes = {
+    query: PropTypes.string.isRequired,
+  };
+
   state = {
     images: [],
     error: null,
     status: 'idle',
     currentPage: 1,
-    searchImage: '',
   };
+
+  componentDidUpdate(prevProps, prevState) {
+    const { query } = this.props;
+    const { currentPage } = this.state;
+
+    if (prevProps.query !== query) {
+      this.setState(
+        {
+          status: 'pending',
+          images: [],
+          currentPage: 1,
+        },
+        this.getAPI,
+      );
+    }
+
+    if (prevState.currentPage !== currentPage) {
+      this.scrollToNextPage();
+    }
+  }
 
   getAPI = () => {
     const { query } = this.props;
@@ -29,30 +53,25 @@ class ImageGallery extends Component {
           this.setState({ status: 'rejected' });
           return;
         }
+
         this.setState(prevState => ({
           images: [...prevState.images, ...hits],
           status: 'resolved',
-          searchImage: query,
           currentPage: prevState.currentPage + 1,
         }));
       })
       .catch(error => this.setState({ error, status: 'rejected' }));
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    // const {searchImage} = this.state;
-    const { query } = this.props;
-    // this.setState({images: [], currentPage: 1})
-    if (prevProps.query !== query) {
-      this.setState({ status: 'pending' });
-      console.log('componentDidUpdate');
-      this.getAPI();
-    }
-  }
+  scrollToNextPage = () => {
+    window.scrollTo({
+      top: document.documentElement.scrollHeight,
+      behavior: 'smooth',
+    });
+  };
 
   render() {
     const { images, error, status } = this.state;
-    console.log(status, error, images);
 
     if (status === 'idle')
       return <Magnifier title={'Введите имя картинки для поиска'} />;
@@ -71,10 +90,8 @@ class ImageGallery extends Component {
     if (status === 'resolved') {
       return (
         <>
-          <ul className="ImageGallery">
-            <ImageGalleryItem images={images} />
-          </ul>
-          <Button onBtnClick={this.getAPI} />
+          <ImageGalleryItem images={images} />
+          {images.length > 0 ? null : <Button onLoadMore={this.getAPI} />}
         </>
       );
     }

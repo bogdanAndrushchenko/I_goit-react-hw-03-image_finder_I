@@ -43,7 +43,7 @@ class SearchForm extends Component {
     return (
       <form className="SearchForm" onSubmit={this.handleSubmitForm}>
         <button type="submit" className="SearchForm-button">
-          <span className="SearchForm-button-label">{/*Search*/}</span>
+          <span className="SearchForm-button-label">Search</span>
         </button>
 
         <input
