@@ -91,7 +91,7 @@ class ImageGallery extends Component {
       return (
         <>
           <ImageGalleryItem images={images} />
-          {images.length > 0 ? null : <Button onLoadMore={this.getAPI} />}
+          {images.length > 0 && <Button onLoadMore={this.getAPI} />}
         </>
       );
     }
