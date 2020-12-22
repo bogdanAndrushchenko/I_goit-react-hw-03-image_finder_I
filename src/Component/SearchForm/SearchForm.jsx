@@ -1,64 +1,53 @@
-import { Component } from 'react';
+import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 
 import './SearchForm.scss';
 
-const INITIAL_STATE_FORM = {
-  searchImage: '',
-};
+const SearchForm = ({ onFormSubmit }) => {
+  const [searchImage, setSearchImage] = useState('');
 
-class SearchForm extends Component {
-  static propTypes = {
-    onFormSubmit: PropTypes.func.isRequired,
-  };
-
-  state = {
-    ...INITIAL_STATE_FORM,
-  };
-
-  handleInputChange = e => {
+  const handleInputChange = e => {
     const { value } = e.currentTarget;
-    this.setState({ searchImage: value.toLowerCase() });
+    setSearchImage(value.toLowerCase());
   };
 
-  handleSubmitForm = e => {
+  const handleSubmitForm = e => {
     e.preventDefault();
-    const { onFormSubmit } = this.props;
-    const { searchImage } = this.state;
     if (searchImage.trim() === '') {
       toast.dark('Please enter request', { autoClose: 2000 });
       return;
     }
     onFormSubmit(searchImage);
-    this.resetForm();
+    resetForm();
   };
 
-  resetForm = () => {
-    this.setState({ ...INITIAL_STATE_FORM });
+  const resetForm = () => {
+    setSearchImage('');
   };
 
-  render() {
-    const { searchImage } = this.state;
-    return (
-      <form className="SearchForm" onSubmit={this.handleSubmitForm}>
-        <button type="submit" className="SearchForm-button">
-          <span className="SearchForm-button-label">Search</span>
-        </button>
+  return (
+    <form className="SearchForm" onSubmit={handleSubmitForm}>
+      <button type="submit" className="SearchForm-button">
+        <span className="SearchForm-button-label">Search</span>
+      </button>
 
-        <input
-          className="SearchForm-input"
-          type="text"
-          autoComplete="off"
-          autoFocus
-          placeholder="Search images and photos"
-          name="searchImage"
-          value={searchImage}
-          onChange={this.handleInputChange}
-        />
-      </form>
-    );
-  }
-}
+      <input
+        className="SearchForm-input"
+        type="text"
+        autoComplete="off"
+        autoFocus
+        placeholder="Search images and photos"
+        name="searchImage"
+        value={searchImage}
+        onChange={handleInputChange}
+      />
+    </form>
+  );
+};
+
+SearchForm.propTypes = {
+  onFormSubmit: PropTypes.func.isRequired,
+};
 
 export default SearchForm;

@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { toast } from 'react-toastify';
 import { Loader, Magnifier } from '../Loaders';
@@ -9,93 +9,88 @@ import ari_service from '../../API_service/api_service';
 
 import './ImageGallery.scss';
 
-class ImageGallery extends Component {
-  static propTypes = {
-    query: PropTypes.string.isRequired,
-  };
+const ImageGallery = ({ query }) => {
+  const [images, setImages] = useState([]);
+  const [error, setError] = useState(null);
+  const [status, setStatus] = useState('idle');
+  const [currentPage, setCurrentPage] = useState(1);
 
-  state = {
-    images: [],
-    error: null,
-    status: 'idle',
-    currentPage: 1,
-  };
+  useEffect(() => {
+    scrollToNextPage();
+  });
 
-  componentDidUpdate(prevProps, prevState) {
-    const { query } = this.props;
-    const { currentPage } = this.state;
-
-    if (prevProps.query !== query) {
-      this.setState(
-        {
-          status: 'pending',
-          images: [],
-          currentPage: 1,
-        },
-        this.getAPI,
-      );
+  useEffect(() => {
+    console.log('useEffect');
+    if (!query) {
+      return;
     }
+    setImages([]);
+    setCurrentPage(1);
+    setStatus('pending');
+    getAPI();
+    console.log(currentPage);
+  }, [query]);
 
-    if (prevState.currentPage !== currentPage) {
-      this.scrollToNextPage();
-    }
-  }
+  useEffect(() => {});
 
-  getAPI = () => {
-    const { query } = this.props;
-    const { currentPage } = this.state;
+  // const loadMore = () => {
+  //     setCurrentPage(page => page + 1)
+  // }
+
+  const getAPI = () => {
     ari_service
       .getResource(query, currentPage)
       .then(images => {
         const { hits } = images;
         if (hits.length === 0) {
           toast.error('error', { autoClose: 2000 });
-          this.setState({ status: 'rejected' });
+          setStatus('rejected');
           return;
         }
-
-        this.setState(prevState => ({
-          images: [...prevState.images, ...hits],
-          status: 'resolved',
-          currentPage: prevState.currentPage + 1,
-        }));
+        setImages(images => [...images, ...hits]);
+        setCurrentPage(p => p + 1);
+        setStatus('resolved');
+        console.log('getAPI()', currentPage);
       })
-      .catch(error => this.setState({ error, status: 'rejected' }));
+      .catch(error => {
+        setError(error);
+        setStatus('rejected');
+      });
   };
 
-  scrollToNextPage = () => {
+  const scrollToNextPage = () => {
     window.scrollTo({
       top: document.documentElement.scrollHeight,
       behavior: 'smooth',
     });
   };
 
-  render() {
-    const { images, error, status } = this.state;
-
-    if (status === 'idle')
-      return <Magnifier title={'Введите имя картинки для поиска'} />;
-    if (status === 'pending') return <Loader />;
-    if (status === 'rejected') {
-      return (
-        <>
-          {error ? (
-            error.message
-          ) : (
-            <Magnifier title={'Ненайдено! Попробуйте еще'} />
-          )}
-        </>
-      );
-    }
-    if (status === 'resolved') {
-      return (
-        <>
-          <ImageGalleryItem images={images} />
-          {images.length > 0 && <Button onLoadMore={this.getAPI} />}
-        </>
-      );
-    }
+  if (status === 'idle')
+    return <Magnifier title={'Введите имя картинки для поиска'} />;
+  if (status === 'pending') return <Loader />;
+  if (status === 'rejected') {
+    return (
+      <>
+        {error ? (
+          error.message
+        ) : (
+          <Magnifier title={'Ненайдено! Попробуйте еще'} />
+        )}
+      </>
+    );
   }
-}
+  if (status === 'resolved') {
+    return (
+      <>
+        <ImageGalleryItem images={images} />
+        {images.length > 0 && <Button onLoadMore={getAPI} />}
+      </>
+    );
+  }
+};
+
+ImageGallery.propTypes = {
+  query: PropTypes.string.isRequired,
+};
 
 export default ImageGallery;

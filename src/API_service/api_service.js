@@ -1,5 +1,36 @@
+import axios from 'axios';
 import { toast } from 'react-toastify';
 
+const API_KEY = '18613871-d09d7f4d1ad86f8a51a1289a6';
+const BASE_URL = 'https://pixabay.com/api';
+
+axios.defaults.baseURL = BASE_URL;
+axios.defaults.params = {
+  key: API_KEY,
+  image_type: 'photo',
+  orientation: 'horizontal',
+  per_page: 12,
+};
+
+const getResource = async ({ q, page }) => {
+  try {
+    const { responce } = await axios.get(
+      '',
+      {
+        params: { q, page },
+      },
+      // `${this.baseURL}&q=${search}&page=${page}&per_page=${this.per_page}&key=${this.APIkey}`,
+    );
+    if (responce.ok) {
+      return await responce.json();
+    }
+    // return Promise.reject(new Error(`Ошибка поиск ${search} пуст `));
+  } catch (error) {
+    throw toast.error(error, {
+      autoClose: 2000,
+    });
+  }
+};
 const api_service = {
   per_page: 12,
   APIkey: '18613871-d09d7f4d1ad86f8a51a1289a6',
